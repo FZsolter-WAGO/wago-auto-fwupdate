@@ -118,7 +118,7 @@ list () {
         fi
     done < /tmp/wago-auto-fwupdate.list
     rm /tmp/wago-auto-fwupdate.list -f
-    if ! $FIRST_TRY; then
+    if $FIRST_TRY; then
         echo ERROR: Unsupported type of device
     fi
     exit 0
