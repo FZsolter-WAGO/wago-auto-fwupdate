@@ -1,9 +1,5 @@
 #!/bin/bash
-if [[ -z "$1" ]]; then
-    input1="help"
-else
-    input1="$1"
-fi
+input1="${1:-help}"
 if [[ "$input1" == "help" ]]; then
     echo "   wago-auto-fwupdate 1.0.0 - Tool for downloading and deploying a specific firmware version from the Github repository"
     echo ""
