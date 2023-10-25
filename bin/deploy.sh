@@ -5,7 +5,7 @@ if [[ "$input1" == "help" ]]; then
     echo ""
     echo "   Usage: .../deploy.sh help|FIRMWARE_REVISION"
     echo ""
-    echo "   Example: .../deploy.sh 04.03.03(25)"
+    echo "   Example: .../deploy.sh \"04.03.03(25)\""
     exit 0
 fi
 if [ "$EUID" -ne 0 ]
@@ -19,7 +19,7 @@ if [[ -z "$CURRENT_FWUPDATE_STATUS" ]]; then
     echo "ERROR: /etc/config-tools/fwupdate is not available"
     exit 1
 fi
-if [[ "$CURRENT_FWUPDATE_STATUS" != "disabled" ]]; then
+if [[ "$CURRENT_FWUPDATE_STATUS" != "inactive" ]]; then
     echo "ERROR: Firmware update is in progress"
     exit 1
 fi
