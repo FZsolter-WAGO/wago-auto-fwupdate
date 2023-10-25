@@ -21,7 +21,7 @@ main () {
             FW_TYPE=pfc_g2
             ;;
         *)
-            echo ERROR: Unsupported type of device!
+            echo ERROR: Unsupported type of device
             exit 1
             ;;
     esac
@@ -59,20 +59,18 @@ install() {
     echo "Trying to download $input2 for $CURRENT_ORDER_NUMBER..."
     wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.md5" &>/dev/null
     if [ ! -s "/tmp/FW.md5" ]; then
-        echo "Error while downloading MD5 file"
+        echo "ERROR: Invalid firmware revision input"
         exit 1
     fi
     wget -O /tmp/FW.raucb --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.raucb"
     if [ ! -s "/tmp/FW.raucb" ]; then
-        echo "Error while downloading firmware file"
+        echo "ERROR: Error while downloading firmware file"
         exit 1
     fi
     downloaded_md5=$(md5sum /tmp/FW.raucb | awk '{print $1}')
     expected_md5=$(cat /tmp/FW.md5)
-    if [ "$downloaded_md5" = "$expected_md5" ]; then
-        echo "Firmware file validation successful."
-    else
-        echo "Firmware file validation failed. The downloaded file is not valid."
+    if [ "$downloaded_md5" != "$expected_md5" ]; then
+        echo "ERROR: Firmware file validation failed. The downloaded file is not valid."
         exit 1
     fi
     FIRST_TRY=true
@@ -107,14 +105,22 @@ list () {
         echo "ERROR: Failed to download the list"
         exit 1
     fi
+    FIRST_FOUND=true
     while IFS= read -r line; do
         line_fw_type=$(echo "$line" | awk '{print $1}')
         line_fw_version=$(echo "$line" | awk '{print $2}')
         if [ "$line_fw_type" = "$FW_TYPE" ]; then
-            echo "\"$line_fw_version\""
+            if $FIRST_TRY; then
+                echo "The following firmware revisions are available"
+                FIRST_TRY=false
+            fi
+            echo "  \"$line_fw_version\""
         fi
     done < /tmp/wago-auto-fwupdate.list
     rm /tmp/wago-auto-fwupdate.list -f
+    if ! $FIRST_TRY; then
+        echo ERROR: Unsupported type of device
+    fi
     exit 0
 }
 
