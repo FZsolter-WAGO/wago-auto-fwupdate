@@ -47,6 +47,10 @@ main () {
 }
 
 install() {
+    if [[ -z "$input2" ]]; then
+        echo "ERROR: Please enter a firmware revision, like \"04.03.03(25)\""
+        exit 1
+    fi
     CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status | grep status= | awk -F'=' '{print $2}')
     if [[ -z "$CURRENT_FWUPDATE_STATUS" ]]; then
         echo "ERROR: /etc/config-tools/fwupdate is not available"
