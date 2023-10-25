@@ -1,14 +1,15 @@
 #!/bin/bash
 input1="$1"
+
 main() {
     case $input1 in
         start)
             current_script_pid=$$
             pids=$(pidof S15_z_auto_fwupdate)
-            IFS=' ' read -r -a pid_array  $pids
-            for pid in ${pid_array[@]}; do
-                if [ $pid != $current_script_pid ]; then
-                    kill $pid
+            IFS=' ' read -r -a pid_array <<< "$pids"  # Added '<<<' to fix array assignment
+            for pid in "${pid_array[@]}"; do
+                if [ "$pid" != "$current_script_pid" ]; then  # Added double quotes for variable expansion
+                    kill "$pid"
                 fi
             done
             ;;
@@ -23,23 +24,23 @@ main() {
             exit 1
             ;;
     esac
+
     WAGO_FWUPDATE="/etc/config-tools/fwupdate"
-    while true
-    do
-        CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status  grep status=  awk -F'=' '{print $2}')
+    while true; do
+        CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status | grep status= | awk -F'=' '{print $2}')
         case $CURRENT_FWUPDATE_STATUS in
             inactive)
-                WAGO_FWUPDATE activate
+                $WAGO_FWUPDATE activate
                 ;;
             prepared)
                 mv /tmp/FW.raucb /tmp/fwupdate/FW.raucb
-                WAGO_FWUPDATE start -q --path /tmp/fwupdate
+                $WAGO_FWUPDATE start -q --path /tmp/fwupdate
                 ;;
             unconfirmed)
-                WAGO_FWUPDATE finish
+                $WAGO_FWUPDATE finish
                 ;;
             errorfinished)
-                WAGO_FWUPDATE clear
+                $WAGO_FWUPDATE clear
                 rm /etc/rc.d/S15_z_auto_fwupdate -f
                 exit 0
                 ;;
@@ -47,4 +48,5 @@ main() {
         sleep 10
     done
 }
+
 main
