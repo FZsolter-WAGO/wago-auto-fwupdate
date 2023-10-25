@@ -3,7 +3,8 @@ A script that downloads a firmware and starts the fwupdate process in the contro
 ```
 sudo wget -qO- https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/bin/wago-auto-fwupdate | bash -s
 ```
-### You have to manually apply the changes after the install. You can check the current state with...
+### You have to manually trigger the next steps after the install.
+You can check the current fwupdate state with...
 ```
 sudo /etc/config-tools/fwupdate status
 ```
