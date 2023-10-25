@@ -2,7 +2,7 @@
 if [[ -z "$1" ]]; then
     1 = "help"
 fi
-if [[ "$1" = "help" ]]; then
+if [[ "$1" == "help" ]]; then
     echo "   wago-auto-fwupdate 1.0.0 - Tool for downloading and deploying a specific firmware version from the Github repository"
     echo ""
     echo "   Usage: .../deploy.sh help|FIRMWARE_REVISION"
@@ -15,8 +15,13 @@ then
     echo "ERROR: Please run the script as root"
     exit 1
 fi
-CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status  grep status=  awk -F'=' '{print $2}')
-if [["$CURRENT_FWUPDATE_STATUS" != "disabled"]]; then
+WAGO_FWUPDATE="/etc/config-tools/fwupdate"
+CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status | grep status= | awk -F'=' '{print $2}')
+if [[ -z "$CURRENT_FWUPDATE_STATUS" ]]; then
+    echo "ERROR: /etc/config-tools/fwupdate is not available"
+    exit 1
+fi
+if [[ "$CURRENT_FWUPDATE_STATUS" != "disabled" ]]; then
     echo "ERROR: Firmware update is in progress"
     exit 1
 fi
