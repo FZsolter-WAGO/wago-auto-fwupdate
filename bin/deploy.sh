@@ -1,8 +1,10 @@
 #!/bin/bash
 if [[ -z "$1" ]]; then
-    1 = "help"
+    input1 = "help"
+else
+    input1 = "$1"
 fi
-if [[ "$1" == "help" ]]; then
+if [[ "$input1" == "help" ]]; then
     echo "   wago-auto-fwupdate 1.0.0 - Tool for downloading and deploying a specific firmware version from the Github repository"
     echo ""
     echo "   Usage: .../deploy.sh help|FIRMWARE_REVISION"
@@ -37,12 +39,12 @@ case $CURRENT_ORDER_NUMBER in
         ;;
 esac
 echo "Trying to download $CURRENT_FW_REVISION for $CURRENT_ORDER_NUMBER..."
-wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$1/FW.md5" &>/dev/null
+wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input1/FW.md5" &>/dev/null
 if [ ! -s "/tmp/FW.md5" ]; then
     echo "Error while downloading MD5 file"
     exit 1
 fi
-wget -qO /tmp/FW.raucb --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$1/FW.raucb" &>/dev/null
+wget -qO /tmp/FW.raucb --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input1/FW.raucb" &>/dev/null
 if [ ! -s "/tmp/FW.raucb" ]; then
     echo "Error while downloading firmware file"
     exit 1
