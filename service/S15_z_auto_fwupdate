@@ -30,17 +30,17 @@ main() {
         CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status | grep status= | awk -F'=' '{print $2}')
         case $CURRENT_FWUPDATE_STATUS in
             inactive)
-                $WAGO_FWUPDATE activate
+                $WAGO_FWUPDATE activate &>/dev/null
                 ;;
             prepared)
                 mv /tmp/FW.raucb /tmp/fwupdate/FW.raucb
-                $WAGO_FWUPDATE start -q --path /tmp/fwupdate
+                $WAGO_FWUPDATE start -q --path /tmp/fwupdate &>/dev/null
                 ;;
             unconfirmed)
-                $WAGO_FWUPDATE finish
+                $WAGO_FWUPDATE finish &>/dev/null
                 ;;
             errorfinished)
-                $WAGO_FWUPDATE clear
+                $WAGO_FWUPDATE clear &>/dev/null
                 rm /etc/rc.d/S15_z_auto_fwupdate -f
                 exit 0
                 ;;
