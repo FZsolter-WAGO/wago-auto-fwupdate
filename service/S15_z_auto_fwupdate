@@ -1,0 +1,59 @@
+#!binbash
+
+case $1 in
+    start)
+        current_script_pid=$$
+        pids=$(pidof S15_z_auto_fwupdate)
+        IFS=' ' read -r -a pid_array  $pids
+        for pid in ${pid_array[@]}; do
+            if [ $pid != $current_script_pid ]; then
+                kill $pid
+            fi
+        done
+        ;;
+    stop)
+        killall S15_z_auto_fwupdate
+        exit 0
+        ;;
+    )
+        echo Usage $0 (startstop)
+        echo start - starts the background process for automatic firmware upgrade
+        echo stop - stops the background process, but not the fwupdate service
+        exit 1
+        ;;
+esac
+# Lets download the firmware first
+CURRENT_ORDER_NUMBER=$(etcconfig-toolsget_coupler_details order-number)
+CURRENT_FW_REVISION=$(etcconfig-toolsget_coupler_details firmware-revision)
+case $CURRENT_ORDER_NUMBER in
+    750-8212)
+        FW_TYPE=pfc_g2
+        ;;
+    )
+        echo ERROR Unsupported type of device!
+        ;;
+esac
+
+WAGO_FWUPDATE=etcconfig-toolsfwupdate
+
+while true
+do
+    CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status  grep status=  awk -F'=' '{print $2}')
+    case $CURRENT_FWUPDATE_STATUS in
+        inactive)
+            echo WAGO_FWUPDATE activate
+            ;;
+        prepared)
+            echo WAGO_FWUPDATE start -q --path tmpfwupdate
+            ;;
+        unconfirmed)
+            echo WAGO_FWUPDATE finish
+            ;;
+        errorfinished)
+            echo WAGO_FWUPDATE clear
+            rm etcrc.dS15_z_auto_fwupdate -f
+            exit 0
+            ;;
+    esac
+    sleep 10
+done
