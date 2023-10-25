@@ -1,5 +1,8 @@
 #!/bin/bash
 
+input1="$1"
+input2="$2"
+
 main () {
     if [ "$EUID" -ne 0 ]
     then
@@ -22,7 +25,6 @@ main () {
             exit 1
             ;;
     esac
-    input1="${1:-help}"
     case "$input1" in
         list)
             list
