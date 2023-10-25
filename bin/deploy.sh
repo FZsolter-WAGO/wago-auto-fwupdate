@@ -35,7 +35,7 @@ main() {
             exit 1
             ;;
     esac
-    echo "Trying to download $CURRENT_FW_REVISION for $CURRENT_ORDER_NUMBER..."
+    echo "Trying to download $input1 for $CURRENT_ORDER_NUMBER..."
     wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input1/FW.md5" &>/dev/null
     if [ ! -s "/tmp/FW.md5" ]; then
         echo "Error while downloading MD5 file"
