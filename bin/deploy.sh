@@ -12,7 +12,12 @@ if [["$1" = "help"]]; then
 fi
 if [ "$EUID" -ne 0 ]
 then
-    echo "Please run the script as root"
+    echo "ERROR: Please run the script as root"
+    exit 1
+fi
+CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status  grep status=  awk -F'=' '{print $2}')
+if [["$CURRENT_FWUPDATE_STATUS" != "disabled"]]; then
+    echo "ERROR: Firmware update is in progress"
     exit 1
 fi
 # Lets download the firmware first
