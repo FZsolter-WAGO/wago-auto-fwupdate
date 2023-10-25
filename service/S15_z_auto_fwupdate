@@ -15,29 +15,31 @@ case $1 in
         killall S15_z_auto_fwupdate
         exit 0
         ;;
-    )
+    *)
         echo Usage $0 (startstop)
         echo start - starts the background process for automatic firmware upgrade
         echo stop - stops the background process, but not the fwupdate service
         exit 1
         ;;
 esac
+WAGO_FWUPDATE="/etc/config-tools/fwupdate"
 while true
 do
     CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status  grep status=  awk -F'=' '{print $2}')
     case $CURRENT_FWUPDATE_STATUS in
         inactive)
-            echo WAGO_FWUPDATE activate
+            WAGO_FWUPDATE activate
             ;;
         prepared)
-            echo WAGO_FWUPDATE start -q --path tmpfwupdate
+            mv /tmp/FW.raucb /tmp/fwupdate/FW.raucb
+            WAGO_FWUPDATE start -q --path /tmp/fwupdate
             ;;
         unconfirmed)
-            echo WAGO_FWUPDATE finish
+            WAGO_FWUPDATE finish
             ;;
         errorfinished)
-            echo WAGO_FWUPDATE clear
-            rm etcrc.dS15_z_auto_fwupdate -f
+            WAGO_FWUPDATE clear
+            rm /etc/rc.d/S15_z_auto_fwupdate -f
             exit 0
             ;;
     esac
