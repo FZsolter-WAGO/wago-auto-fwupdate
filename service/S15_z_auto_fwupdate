@@ -1,6 +1,7 @@
 #!/bin/bash
+input1="$1"
 main() {
-    case $1 in
+    case $input1 in
         start)
             current_script_pid=$$
             pids=$(pidof S15_z_auto_fwupdate)
