@@ -60,7 +60,7 @@ install() {
         echo "ERROR: Firmware update is in progress"
         exit 1
     fi
-    echo "Trying to download $input2 for $CURRENT_ORDER_NUMBER..."
+    echo "Trying to download \"$input2\" for $CURRENT_ORDER_NUMBER..."
     wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.md5" &>/dev/null
     if [ ! -s "/tmp/FW.md5" ]; then
         echo "ERROR: Invalid firmware revision input"
