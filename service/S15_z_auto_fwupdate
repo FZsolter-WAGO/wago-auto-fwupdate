@@ -1,4 +1,4 @@
-#!binbash
+#!/bin/bash
 main() {
     case $1 in
         start)
@@ -16,9 +16,9 @@ main() {
             exit 0
             ;;
         *)
-            echo Usage $0 (startstop)
-            echo start - starts the background process for automatic firmware upgrade
-            echo stop - stops the background process, but not the fwupdate service
+            echo "Usage $0 (start|stop)"
+            echo "start - starts the background process for automatic firmware upgrade"
+            echo "stop - stops the background process, but not the fwupdate service"
             exit 1
             ;;
     esac
