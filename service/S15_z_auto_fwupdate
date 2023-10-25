@@ -9,12 +9,12 @@ main() {
             IFS=' ' read -r -a pid_array <<< "$pids"  # Added '<<<' to fix array assignment
             for pid in "${pid_array[@]}"; do
                 if [ "$pid" != "$current_script_pid" ]; then  # Added double quotes for variable expansion
-                    kill "$pid"
+                    kill "$pid" &>/dev/null
                 fi
             done
             ;;
         stop)
-            killall S15_z_auto_fwupdate
+            killall S15_z_auto_fwupdate &>/dev/null
             exit 0
             ;;
         *)
