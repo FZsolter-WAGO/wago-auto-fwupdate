@@ -24,7 +24,13 @@ main () {
     esac
     input1="${1:-help}"
     case "$input1" in
-        help)
+        list)
+            list
+            ;;
+        install)
+            install
+            ;;
+        *)
             echo "   wago-auto-fwupdate 1.0.0 - Tool for downloading and deploying a specific WAGO firmware version from Github"
             echo ""
             echo "   Usage: .../wago-auto-fwupdate | bash -s (help|list|install \"FIRMWARE_REVISION\")"
@@ -34,12 +40,6 @@ main () {
             echo ""
             echo "   Note, that during the fwupdate process you will have to apply the changes in the end by running \"/etc/config-tools/fwupdate finish\" and \"/etc/config-tools/fwupdate clear\""
             echo ""
-            ;;
-        list)
-            list
-            ;;
-        install)
-            install
             ;;
     esac
 }
