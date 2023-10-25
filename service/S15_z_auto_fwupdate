@@ -39,7 +39,7 @@ main() {
             unconfirmed)
                 $WAGO_FWUPDATE finish &>/dev/null
                 ;;
-            errorfinished)
+            error | finished)
                 $WAGO_FWUPDATE clear &>/dev/null
                 rm /etc/rc.d/S15_z_auto_fwupdate -f
                 exit 0
