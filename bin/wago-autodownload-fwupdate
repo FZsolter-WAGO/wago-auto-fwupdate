@@ -9,7 +9,7 @@ main () {
         echo "ERROR: Please run the script as root"
         exit 1
     fi
-    if ps aux | grep -v grep | grep wago-auto-fwupdate > /dev/null; then
+    if ps aux | grep -v grep | grep wago-autodownload-fwupdate > /dev/null; then
         echo "ERROR: Another instance of the script is already running."
         exit 1
     fi
@@ -33,12 +33,13 @@ main () {
             install
             ;;
         *)
-            echo "   wago-auto-fwupdate 1.0.0 - Tool for downloading and deploying a specific WAGO firmware version from Github"
             echo ""
-            echo "   Usage: .../wago-auto-fwupdate | bash -s (help|list|install \"FIRMWARE_REVISION\")"
+            echo "   wago-autodownload-fwupdate 1.0.0 - Tool for downloading and deploying a specific WAGO firmware version from Github"
             echo ""
-            echo "   Example: .../wago-auto-fwupdate | bash -s list"
-            echo "   Example: .../wago-auto-fwupdate | bash -s install \"04.03.03(25)\""
+            echo "   Usage: .../wago-autodownload-fwupdate | bash -s (help|list|install \"FIRMWARE_REVISION\")"
+            echo ""
+            echo "   Example: .../wago-autodownload-fwupdate | bash -s list"
+            echo "   Example: .../wago-autodownload-fwupdate | bash -s install \"04.03.03(25)\""
             echo ""
             echo "   Note, that during the fwupdate process you will have to apply the changes in the end by running \"/etc/config-tools/fwupdate finish\" and \"/etc/config-tools/fwupdate clear\""
             echo ""
@@ -61,12 +62,12 @@ install() {
         exit 1
     fi
     echo "Trying to download \"$input2\" for $CURRENT_ORDER_NUMBER..."
-    wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.md5" &>/dev/null
+    wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.md5" &>/dev/null
     if [ ! -s "/tmp/FW.md5" ]; then
         echo "ERROR: Invalid firmware revision input"
         exit 1
     fi
-    wget -O /tmp/FW.raucb --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.raucb"
+    wget -O /tmp/FW.raucb --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.raucb"
     if [ ! -s "/tmp/FW.raucb" ]; then
         echo "ERROR: Error while downloading firmware file"
         exit 1
@@ -104,7 +105,7 @@ install() {
 }
 
 list () {
-    wget -q -O /tmp/wago-auto-fwupdate.list --no-check-certificate https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/firmwares/list &>/dev/null
+    wget -q -O /tmp/wago-autodownload-fwupdate.list --no-check-certificate https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/firmwares/list &>/dev/null
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to download the list"
         exit 1
@@ -120,8 +121,8 @@ list () {
             fi
             echo "  \"$line_fw_version\""
         fi
-    done < /tmp/wago-auto-fwupdate.list
-    rm /tmp/wago-auto-fwupdate.list -f
+    done < /tmp/wago-autodownload-fwupdate.list
+    rm /tmp/wago-autodownload-fwupdate.list -f
     if $FIRST_TRY; then
         echo ERROR: Unsupported type of device
     fi
