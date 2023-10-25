@@ -57,6 +57,6 @@ main() {
     wget -qO /etc/rc.d/S15_z_auto_fwupdate --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/service/S15_z_auto_fwupdate" &>/dev/null
     chmod +x /etc/rc.d/S15_z_auto_fwupdate &>/dev/null
     echo "Starting the background process"
-    /etc/rc.d/S15_z_auto_fwupdate start
+    /etc/rc.d/S15_z_auto_fwupdate start &>/dev/null &
 }
 main
