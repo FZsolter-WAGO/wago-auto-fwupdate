@@ -1,6 +1,6 @@
 #!/bin/bash
 if [[ -z "$1" ]]; then
-    $1 = "help"
+    1 = "help"
 fi
 if [[ "$1" = "help" ]]; then
     echo "   wago-auto-fwupdate 1.0.0 - Tool for downloading and deploying a specific firmware version from the Github repository"
