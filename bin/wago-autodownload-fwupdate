@@ -73,7 +73,7 @@ finish() {
         exit 1
     fi
     bg_service &
-    echo "Background service started..."
+    echo "Background service started, fwupdate is in progress..."
     exit 0
 }
 
@@ -112,7 +112,7 @@ install() {
         exit 1
     fi
     bg_service &
-    echo "Background service started..."
+    echo "Background service started, fwupdate is in progress..."
     exit 0
 }
 
@@ -137,6 +137,7 @@ bg_service () {
                 ;;
             error | finished)
                 $WAGO_FWUPDATE clear &>/dev/null
+                echo "Firmware update finished"
                 exit 0
                 ;;
         esac
