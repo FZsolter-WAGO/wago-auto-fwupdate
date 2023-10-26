@@ -1,18 +1,14 @@
 # wago-autodownload-fwupdate
 A script that downloads a firmware and starts the fwupdate process in the controller.
+## List out the available firmware revisions
 ```
-sudo wget -qO- https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/bin/wago-autodownload-fwupdate | bash -s
+sudo wget -qO- https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/bin/wago-autodownload-fwupdate | bash -s list
 ```
-### You have to manually trigger the next steps after the install.
-You can check the current fwupdate state with...
+## Start the installation (replace "04.03.03(25)" with your desired input)
 ```
-sudo /etc/config-tools/fwupdate status
+sudo wget -qO- https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/bin/wago-autodownload-fwupdate | bash -s install "04.03.03(25)"
 ```
-On "unconfirmed" run...
+## Finish the installation once the device rebooted
 ```
-sudo /etc/config-tools/fwupdate finish
-```
-On "finished" or "error" run...
-```
-sudo /etc/config-tools/fwupdate clear
+sudo wget -qO- https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/bin/wago-autodownload-fwupdate | bash -s finish
 ```
