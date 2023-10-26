@@ -1,5 +1,6 @@
 # wago-autodownload-fwupdate
 A script that downloads a firmware and starts the fwupdate process in the controller.
+By running this script the user is accepting the [WAGO Software License Terms](https://www.wago.com/global/d/softwarelicence).
 ## List out the available firmware revisions
 ```
 sudo wget -qO- https://raw.githubusercontent.com/FZsolter-WAGO/wago-auto-fwupdate/main/bin/wago-autodownload-fwupdate | bash -s list
