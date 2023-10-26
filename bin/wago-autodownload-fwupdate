@@ -91,13 +91,13 @@ install() {
     fi
     echo "Trying to download \"$input2\" for $CURRENT_ORDER_NUMBER..."
     get_certs
-    wget -qO /tmp/FW.md5  --certificate=/tmp/fwupdate_client.crt --private-key=/tmp/fwupdate_client.key --ca-certificate=/tmp/fwupdate_ca.crt "$WAGO_FIRMWARE_REPOSITORY/$FW_TYPE/$input2/FW.md5" &>/dev/null
+    repo_download "$WAGO_FIRMWARE_REPOSITORY/$FW_TYPE/$input2/FW.md5" "/tmp/FW.md5"
     if [ ! -s "/tmp/FW.md5" ]; then
         echo "ERROR: Invalid firmware revision input"
         rm_certs
         exit 1
     fi
-    wget -O /tmp/FW.raucb  --certificate=/tmp/fwupdate_client.crt --private-key=/tmp/fwupdate_client.key --ca-certificate=/tmp/fwupdate_ca.crt "$WAGO_FIRMWARE_REPOSITORY/$FW_TYPE/$input2/FW.raucb"
+    repo_download "$WAGO_FIRMWARE_REPOSITORY/$FW_TYPE/$input2/FW.raucb" "/tmp/FW.raucb"
     rm_certs
     if [ ! -s "/tmp/FW.raucb" ]; then
         echo "ERROR: Error while downloading firmware file"
@@ -145,7 +145,7 @@ bg_service () {
 
 list () {
     get_certs
-    wget -q -O /tmp/wago-autodownload-fwupdate.list  --certificate=/tmp/fwupdate_client.crt --private-key=/tmp/fwupdate_client.key --ca-certificate=/tmp/fwupdate_ca.crt "$WAGO_FIRMWARE_REPOSITORY/list" &>/dev/null
+    repo_download "$WAGO_FIRMWARE_REPOSITORY/list" "/tmp/wago-autodownload-fwupdate.list"
     rm_certs
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to download the list"
@@ -180,6 +180,19 @@ rm_certs () {
     rm /tmp/fwupdate_ca.crt -f &>/dev/null
     rm /tmp/fwupdate_client.crt -f &>/dev/null
     rm /tmp/fwupdate_client.key -f &>/dev/null
+}
+
+repo_download () {
+    local url="$1"
+    local output_file="$2"
+    server_port="$(echo "$WAGO_FIRMWARE_REPOSITORY" | awk -F[/:] '{print $4, $5}')"
+    server=$(echo "$server_port" | awk '{print $1}')
+    port=$(echo "$server_port" | awk '{print $2}')
+    (echo -ne "GET $url HTTP/1.1\r\n";
+    echo -ne "Host: $server\r\n";
+    echo -ne "Connection: close\r\n\r\n") | \
+    openssl s_client -connect "$server:$port" -key "/tmp/fwupdate_client.key" -cert "/tmp/fwupdate_client.crt" -CAfile "/tmp/fwupdate_ca.crt" -quiet 2>/dev/null | \
+    sed -n '/^\r$/,$p' | tail -n +2 > "$output_file"
 }
 
 main
