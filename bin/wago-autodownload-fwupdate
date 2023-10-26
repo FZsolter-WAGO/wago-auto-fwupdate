@@ -14,7 +14,7 @@ main () {
         echo "ERROR: Please run the script as root"
         exit 1
     fi
-    if ps aux | grep -v grep | grep wago-autodownload-fwupdate > /dev/null; then
+    if ps aux | grep -v grep | grep "bash -s install" > /dev/null; then
         echo "ERROR: Another instance of the script is already running."
         exit 1
     fi
