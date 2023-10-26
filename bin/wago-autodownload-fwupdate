@@ -37,14 +37,14 @@ main () {
             list
             ;;
         install)
-            if [ $(ps aux | grep -E "bash -s (install|finish)" | grep -v grep | wc -l) -ge 2 ]; then
+            if ps aux | grep -v grep | grep -E "bash -s (install|finish)" | grep -v $$ &> /dev/null; then
                 echo "ERROR: Another instance of the script is already running."
                 exit 1
             fi
             install
             ;;
         finish)
-            if [ $(ps aux | grep -E "bash -s (install|finish)" | grep -v grep | wc -l) -ge 2 ]; then
+            if ps aux | grep -v grep | grep -E "bash -s (install|finish)" | grep -v $$ &> /dev/null; then
                 echo "ERROR: Another instance of the script is already running."
                 exit 1
             fi
