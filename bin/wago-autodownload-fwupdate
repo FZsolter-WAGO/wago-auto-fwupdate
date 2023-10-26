@@ -52,7 +52,7 @@ main () {
             ;;
         *)
             echo ""
-            echo "   wago-autodownload-fwupdate 1.0.0 - Tool for downloading and deploying a specific WAGO firmware version"
+            echo "   wago-autodownload-fwupdate 1.0.1 - Tool for downloading and deploying a specific WAGO firmware version"
             echo ""
             echo "   Usage: .../wago-autodownload-fwupdate | bash -s (help|list|install \"FIRMWARE_REVISION\"|finish)"
             echo ""
