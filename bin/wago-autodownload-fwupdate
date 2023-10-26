@@ -1,5 +1,10 @@
 #!/bin/bash
 
+WAGO_FIRMWARE_REPOSITORY="https://wagohungary.ddns.net:8443"
+WAGO_FWUPDATE="/etc/config-tools/fwupdate"
+WAGO_COUPLER_DETAILS="/etc/config-tools/get_coupler_details"
+CURRENT_ORDER_NUMBER="$($WAGO_COUPLER_DETAILS order-number)"
+
 input1="$1"
 input2="$2"
 
@@ -13,9 +18,6 @@ main () {
         echo "ERROR: Another instance of the script is already running."
         exit 1
     fi
-    WAGO_FWUPDATE="/etc/config-tools/fwupdate"
-    WAGO_COUPLER_DETAILS="/etc/config-tools/get_coupler_details"
-    CURRENT_ORDER_NUMBER="$($WAGO_COUPLER_DETAILS order-number)"
     case $CURRENT_ORDER_NUMBER in
         750-8100 | 750-8101 | 750-8101/025-000 | 750-8102 | 750-8102/025-000 | 750-8101/000-010 | 750-8202 | 750-8203 | 750-8204 | 750-8206 | 750-8207 | 750-8208 | 750-8202/025-000 | 750-8202/025-001 | 750-8202/025-002 | 750-8203/025-000 | 750-8204/025-000 | 750-8206/025-000 | 750-8206/025-001 | 750-8207/025-000 | 750-8207/025-001 | 750-8208/025-000 | 750-8208/025-001 | 750-8202/040-000 | 750-8202/040-001 | 750-8206/040-000 | 750-8206/040-001 | 750-8202/000-011 | 750-8202/000-012 | 750-8202/000-022 | 750-8207/000-022)
             FW_TYPE=pfc_g1
@@ -41,19 +43,38 @@ main () {
         install)
             install
             ;;
+        finish)
+            finish
+            ;;
         *)
             echo ""
             echo "   wago-autodownload-fwupdate 1.0.0 - Tool for downloading and deploying a specific WAGO firmware version from Github"
             echo ""
-            echo "   Usage: .../wago-autodownload-fwupdate | bash -s (help|list|install \"FIRMWARE_REVISION\")"
+            echo "   Usage: .../wago-autodownload-fwupdate | bash -s (help|list|install \"FIRMWARE_REVISION\"|finish)"
             echo ""
             echo "   Example: .../wago-autodownload-fwupdate | bash -s list"
             echo "   Example: .../wago-autodownload-fwupdate | bash -s install \"04.03.03(25)\""
+            echo "   Example: .../wago-autodownload-fwupdate | bash -s finish"
             echo ""
             echo "   Note, that during the fwupdate process you will have to apply the changes in the end by running \"/etc/config-tools/fwupdate finish\" and \"/etc/config-tools/fwupdate clear\""
             echo ""
             ;;
     esac
+}
+
+finish() {
+    CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status | grep status= | awk -F'=' '{print $2}')
+    if [[ -z "$CURRENT_FWUPDATE_STATUS" ]]; then
+        echo "ERROR: /etc/config-tools/fwupdate is not available"
+        exit 1
+    fi
+    if [[ "$CURRENT_FWUPDATE_STATUS" = "inactive" ]]; then
+        echo "ERROR: Firmware update is inactive"
+        exit 1
+    fi
+    bg_service &
+    echo "Background service started..."
+    exit 0
 }
 
 install() {
@@ -71,12 +92,15 @@ install() {
         exit 1
     fi
     echo "Trying to download \"$input2\" for $CURRENT_ORDER_NUMBER..."
-    wget -qO /tmp/FW.md5 --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.md5" &>/dev/null
+    get_certs
+    wget -qO /tmp/FW.md5  --certificate=/tmp/fwupdate_client.crt --private-key=/tmp/fwupdate_client.key --ca-certificate=/tmp/fwupdate_ca.crt "$WAGO_FIRMWARE_REPOSITORY/$FW_TYPE/$input2/FW.md5" &>/dev/null
     if [ ! -s "/tmp/FW.md5" ]; then
         echo "ERROR: Invalid firmware revision input"
+        rm_certs
         exit 1
     fi
-    wget -O /tmp/FW.raucb --no-check-certificate "https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/firmwares/$FW_TYPE/$input2/FW.raucb"
+    wget -O /tmp/FW.raucb  --certificate=/tmp/fwupdate_client.crt --private-key=/tmp/fwupdate_client.key --ca-certificate=/tmp/fwupdate_ca.crt "$WAGO_FIRMWARE_REPOSITORY/$FW_TYPE/$input2/FW.raucb"
+    rm_certs
     if [ ! -s "/tmp/FW.raucb" ]; then
         echo "ERROR: Error while downloading firmware file"
         exit 1
@@ -87,13 +111,18 @@ install() {
         echo "ERROR: Firmware file validation failed. The downloaded file is not valid."
         exit 1
     fi
+    bg_service &
+    echo "Background service started..."
+    exit 0
+}
+
+bg_service () {
     FIRST_TRY=true
     while true; do
         CURRENT_FWUPDATE_STATUS=$($WAGO_FWUPDATE status | grep status= | awk -F'=' '{print $2}')
         case $CURRENT_FWUPDATE_STATUS in
             inactive)
                 if ! $FIRST_TRY; then
-                    echo "ERROR: Something went wrong during the update"
                     exit 1
                 fi
                 FIRST_TRY=false
@@ -102,7 +131,9 @@ install() {
             prepared)
                 mv /tmp/FW.raucb /tmp/fwupdate/FW.raucb
                 $WAGO_FWUPDATE start -q --path /tmp/fwupdate &>/dev/null
-                exit 0
+                ;;
+            unconfirmed)
+                $WAGO_FWUPDATE finish &>/dev/null
                 ;;
             error | finished)
                 $WAGO_FWUPDATE clear &>/dev/null
@@ -114,7 +145,9 @@ install() {
 }
 
 list () {
-    wget -q -O /tmp/wago-autodownload-fwupdate.list --no-check-certificate https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/firmwares/list &>/dev/null
+    get_certs
+    wget -q -O /tmp/wago-autodownload-fwupdate.list  --certificate=/tmp/fwupdate_client.crt --private-key=/tmp/fwupdate_client.key --ca-certificate=/tmp/fwupdate_ca.crt "$WAGO_FIRMWARE_REPOSITORY/list" &>/dev/null
+    rm_certs
     if [ $? -ne 0 ]; then
         echo "ERROR: Failed to download the list"
         exit 1
@@ -136,6 +169,18 @@ list () {
         echo ERROR: Unsupported type of device
     fi
     exit 0
+}
+
+get_certs () {
+    wget -O /tmp/fwupdate_ca.crt "https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/certs/ca.crt" &>/dev/null
+    wget -O /tmp/fwupdate_client.crt "https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/certs/client.crt" &>/dev/null
+    wget -O /tmp/fwupdate_client.key "https://raw.githubusercontent.com/FZsolter-WAGO/wago-autodownload-fwupdate/main/certs/client.key" &>/dev/null
+}
+
+rm_certs () {
+    rm /tmp/fwupdate_ca.crt -f &>/dev/null
+    rm /tmp/fwupdate_client.crt -f &>/dev/null
+    rm /tmp/fwupdate_client.key -f &>/dev/null
 }
 
 main
