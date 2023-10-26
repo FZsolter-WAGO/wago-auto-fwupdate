@@ -48,15 +48,13 @@ main () {
             ;;
         *)
             echo ""
-            echo "   wago-autodownload-fwupdate 1.0.0 - Tool for downloading and deploying a specific WAGO firmware version from Github"
+            echo "   wago-autodownload-fwupdate 1.0.0 - Tool for downloading and deploying a specific WAGO firmware version"
             echo ""
             echo "   Usage: .../wago-autodownload-fwupdate | bash -s (help|list|install \"FIRMWARE_REVISION\"|finish)"
             echo ""
             echo "   Example: .../wago-autodownload-fwupdate | bash -s list"
             echo "   Example: .../wago-autodownload-fwupdate | bash -s install \"04.03.03(25)\""
             echo "   Example: .../wago-autodownload-fwupdate | bash -s finish"
-            echo ""
-            echo "   Note, that during the fwupdate process you will have to apply the changes in the end by running \"/etc/config-tools/fwupdate finish\" and \"/etc/config-tools/fwupdate clear\""
             echo ""
             ;;
     esac
