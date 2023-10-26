@@ -14,10 +14,6 @@ main () {
         echo "ERROR: Please run the script as root"
         exit 1
     fi
-    if ps aux | grep -v grep | grep "bash -s install" > /dev/null; then
-        echo "ERROR: Another instance of the script is already running."
-        exit 1
-    fi
     case $CURRENT_ORDER_NUMBER in
         750-8100 | 750-8101 | 750-8101/0025-0000 | 750-8102 | 750-8102/0025-0000 | 750-8101/0000-0010 | 750-8202 | 750-8203 | 750-8204 | 750-8206 | 750-8207 | 750-8208 | 750-8202/0025-0000 | 750-8202/0025-0001 | 750-8202/0025-0002 | 750-8203/0025-0000 | 750-8204/0025-0000 | 750-8206/0025-0000 | 750-8206/0025-0001 | 750-8207/0025-0000 | 750-8207/0025-0001 | 750-8208/0025-0000 | 750-8208/0025-0001 | 750-8202/0040-0000 | 750-8202/0040-0001 | 750-8206/0040-0000 | 750-8206/0040-0001 | 750-8202/0000-0011 | 750-8202/0000-0012 | 750-8202/0000-0022 | 750-8207/0000-0022)
             FW_TYPE=pfc_g1
@@ -41,9 +37,17 @@ main () {
             list
             ;;
         install)
+            if ps aux | grep -v grep | grep -E -q "bash -s (install|finish)"; then
+                echo "ERROR: Another instance of the script is already running."
+                exit 1
+            fi
             install
             ;;
         finish)
+            if ps aux | grep -v grep | grep -E -q "bash -s (install|finish)"; then
+                echo "ERROR: Another instance of the script is already running."
+                exit 1
+            fi
             finish
             ;;
         *)
